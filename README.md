@@ -32,7 +32,7 @@ Follow the steps below to set up and run the bot:
     TOKEN=your_telegram_bot_token
     ```
 
-    Replace `your_telegram_bot_token` with the actual token for your Telegram bot.
+    Replace `your_telegram_bot_token` with the actual token for your Telegram bot without any additional quotes (`""` or `''`). This ensures that the value of the `TOKEN` environment variable is set correctly during the Docker build process.
 
 ### Building the Docker Image
 
