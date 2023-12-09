@@ -10,5 +10,9 @@ COPY . .
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Set the TOKEN build argument as an environment variable
+ARG TOKEN
+ENV TOKEN=$TOKEN
+
 # Run app.py when the container launches
 CMD ["python", "app.py"]
