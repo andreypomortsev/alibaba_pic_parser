@@ -47,3 +47,15 @@ Run the Docker container securely:
 ```
 docker run -it --rm --env-file .env alibaba-bot
 ```
+## Commands
+- `/start`: Start the bot and receive a welcome message.
+- Send an Alibaba.com web link to receive product pictures.
+
+## Troubleshooting
+If you encounter any issues or have questions, please check the console output for error messages. Ensure that the bot token is correctly set in the **.env** file.
+
+## Credits
+This Telegram bot is powered by the aiogram library for interacting with the Telegram Bot API and the ali_parser module for parsing Alibaba.com links.
+
+## License
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
