@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
+"""
+This script defines a Telegram bot that fetches and sends pictures from Alibaba.com web links.
+"""
+
 import os
 from dotenv import load_dotenv
+import requests
 from aiogram import Bot
 from aiogram.dispatcher import Dispatcher
-from aiogram.types import Message
+from aiogram.types import Message, InputFile
 from aiogram.utils import executor
-import requests
 from ali_parser import get_list_of_picture_urls
 
 # Load environment variables from the .env file
@@ -23,9 +27,44 @@ if not TOKEN:
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 
-# Define your handlers using aiogram decorators
+
+async def photo_saver(message: Message, urls: list):
+    """
+    Download and send back pictures to the user.
+
+    Args:
+        message (Message): The message from the user.
+        urls (list): List of picture URLs to be processed.
+    """
+    for name, picture in enumerate(urls):
+        # Send a GET request to the image URL
+        response = requests.get(picture, timeout=2)
+
+        # Check if the request was successful (status code 200)
+        if response.status_code == 200:
+            # Save the image content to a local file
+            with open(f"image_{name}.jpg", "wb") as file:
+                file.write(response.content)
+
+            # Send the image back to the user
+            with open(f"image_{name}.jpg", "rb") as photo:
+                # Use InputFile to send the file as a document
+                photo_input = InputFile(photo)
+                await bot.send_document(message.chat.id, photo_input)
+        else:
+            await message.answer(
+                f"Failed to download the image. Status code: {response.status_code}"
+            )
+
+
 @dp.message_handler(commands=["start"])
 async def start(message: Message):
+    """
+    Handle the /start command and send a welcome message.
+
+    Args:
+        message (Message): The message from the user.
+    """
     await message.answer(
         "Hello! I'm your bot. Send me an Alibaba.com web link, and I'll fetch and send pictures."
     )
@@ -33,6 +72,12 @@ async def start(message: Message):
 
 @dp.message_handler(lambda message: message.text.startswith(("http://", "https://")))
 async def handle_web_link(message: Message):
+    """
+    Handle messages containing web links.
+
+    Args:
+        message (Message): The message from the user.
+    """
     # Get the web link from the user's message
     web_link = message.text
 
@@ -45,32 +90,10 @@ async def handle_web_link(message: Message):
     else:
         await message.answer("No picture URLs found on the provided web link.")
 
-
-# Update the photo_saver function to use aiogram's send_photo method
-async def photo_saver(message: Message, urls: list):
-    for name, picture in enumerate(urls):
-        # Send a GET request to the image URL
-        response = requests.get(picture)
-
-        # Check if the request was successful (status code 200)
-        if response.status_code == 200:
-            # Save the image content to a local file
-            with open(f"image_{name}.jpg", "wb") as file:
-                file.write(response.content)
-
-            # Send the image back to the user
-            with open(f"image_{name}.jpg", "rb") as photo:
-                await bot.send_photo(message.chat.id, photo)
-
-            print(f"Image saved successfully as image_{name}.jpg")
-        else:
-            print(f"Failed to download the image. Status code: {response.status_code}")
-            await message.answer(
-                f"Failed to download the image. Status code: {response.status_code}"
-            )
-
 def main():
-    # Start the Bot
+    """
+    Start the Telegram bot.
+    """
     executor.start_polling(dp, skip_updates=True)
 
 
