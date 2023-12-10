@@ -4,6 +4,15 @@ FROM python:3.11-slim
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
+# Create a non-root user
+RUN adduser --disabled-password --gecos '' aliparser
+
+# Set the ownership of the working directory to the non-root user
+RUN chown -R aliparser:aliparser /usr/src/app
+
+# Switch to the non-root user
+USER aliparser
+
 # Copy the current directory contents into the container at /usr/src/app
 COPY . .
 
