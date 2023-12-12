@@ -4,6 +4,7 @@ This script defines a Telegram bot that fetches and sends pictures from Alibaba.
 """
 
 import os
+import io
 from dotenv import load_dotenv
 import requests
 from aiogram import Bot
@@ -36,21 +37,14 @@ async def photo_saver(message: Message, urls: list):
         message (Message): The message from the user.
         urls (list): List of picture URLs to be processed.
     """
-    for name, picture in enumerate(urls):
+    for num, picture_url in enumerate(urls):
         # Send a GET request to the image URL
-        response = requests.get(picture, timeout=2)
+        response = requests.get(picture_url, timeout=2)
 
         # Check if the request was successful (status code 200)
         if response.status_code == 200:
-            # Save the image content to a local file
-            with open(f"image_{name}.jpg", "wb") as file:
-                file.write(response.content)
-
-            # Send the image back to the user
-            with open(f"image_{name}.jpg", "rb") as photo:
-                # Use InputFile to send the file as a document
-                photo_input = InputFile(photo)
-                await bot.send_document(message.chat.id, photo_input)
+            photo_input = InputFile(io.BytesIO(response.content), filename=f"{num}.jpg")
+            await bot.send_document(message.chat.id, photo_input)
         else:
             await message.answer(
                 f"Failed to download the image. Status code: {response.status_code}"
