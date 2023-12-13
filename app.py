@@ -37,7 +37,7 @@ async def photo_saver(message: Message, urls: list):
         message (Message): The message from the user.
         urls (list): List of picture URLs to be processed.
     """
-    for num, picture_url in enumerate(1, urls):
+    for num, picture_url in enumerate(urls, 1):
         # Send a GET request to the image URL
         response = requests.get(picture_url, timeout=2)
 
